@@ -147,7 +147,10 @@ async def main() -> None:
     if not api_key:
         raise ValueError("A variável de ambiente API_KEY não foi configurada.")
 
-    # 4. Configurar a aplicação do bot do Telegram
+    # 4. Obter a porta da API da variável de ambiente
+    api_port = int(os.getenv("PORT", "7654"))
+
+    # 5. Configurar a aplicação do bot do Telegram
     bot_app = (
         ApplicationBuilder()
         .token(telegram_token)
@@ -156,27 +159,27 @@ async def main() -> None:
         .build()
     )
 
-    # 3. Adicionar os handlers de comando
+    # 6. Adicionar os handlers de comando
     bot_app.add_handler(CommandHandler("start", start_command_handler))
     bot_app.add_handler(CommandHandler("id", id_command_handler))
 
-    # 4. Configurar a aplicação FastAPI
+    # 7. Configurar a aplicação FastAPI
     fastapi_app = setup_fastapi_app(bot_app)
 
-    # 5. Configurar o servidor Uvicorn
+    # 8. Configurar o servidor Uvicorn
     uvicorn_config = uvicorn.Config(
-        app=fastapi_app, host="0.0.0.0", port=8000, log_level="info"
+        app=fastapi_app, host="0.0.0.0", port=api_port, log_level="info"
     )
     uvicorn_server = uvicorn.Server(uvicorn_config)
 
-    # 6. Executar o bot e o servidor web concorrentemente
+    # 9. Executar o bot e o servidor web concorrentemente
     async with bot_app:
         logger.info("Iniciando o bot do Telegram...")
         await bot_app.initialize()
         await bot_app.start()
         await bot_app.updater.start_polling()
 
-        logger.info("Iniciando o servidor FastAPI na porta 8000...")
+        logger.info(f"Iniciando o servidor FastAPI na porta {api_port}...")
         await uvicorn_server.serve()
 
         logger.info("Desligando o bot...")
