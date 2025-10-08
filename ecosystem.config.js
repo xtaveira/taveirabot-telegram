@@ -13,7 +13,7 @@ module.exports = {
       watch: false,
       // Limita as reinicializações em caso de falhas constantes
       max_restarts: 5,
-      min_uptime: '1M',
+      min_uptime: '1m',
       // Reinicia o app se ele usar mais de 150MB de RAM
       max_memory_restart: "150M",
       // Arquivos de log
